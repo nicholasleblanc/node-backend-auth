@@ -1,0 +1,3 @@
+<p>Forgot password body!</p>
+
+<p>Token: {{ token }}</p>

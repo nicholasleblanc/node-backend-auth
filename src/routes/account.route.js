@@ -5,7 +5,7 @@ import passport from 'passport';
 const router = express.Router();
 
 router.get('/', passport.authenticate('jwt', { session: false, failWithError: true }), (req, res) => {
-  res.json({ success: 'yes!' })
+  res.json({ success: 'yes!' });
 });
 
 export default router;

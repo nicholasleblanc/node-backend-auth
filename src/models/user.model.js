@@ -21,8 +21,12 @@ const UserSchema = new mongoose.Schema({
     type: Boolean,
     default: true
   },
+  isVerified: {
+    type: Boolean,
+    default: false
+  }
 }, {
-  timestamps: true,
+  timestamps: true
 });
 
 UserSchema.pre('save', function (next) {
