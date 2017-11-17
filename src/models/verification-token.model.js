@@ -3,9 +3,9 @@ import httpStatus from 'http-status';
 import mongoose from 'mongoose';
 
 import APIError from '../helpers/APIError';
-import { hashSecret } from '../../config/config';
+import config from '../config/config';
 
-const VerificationTokenSchema = new mongoose.Schema({
+const VerificationTokenSchema = new mongoose.Schema({ // TODO: Expire instead of keeping forever
   _userId: {
     type: mongoose.Schema.Types.ObjectId,
     required: true,
@@ -33,7 +33,7 @@ VerificationTokenSchema.pre('save', function (next) {
 });
 
 VerificationTokenSchema.statics.getHash = function (token) {
-  return crypto.createHmac('sha256', hashSecret).update(token).digest('hex');
+  return crypto.createHmac('sha256', config.hashSecret).update(token).digest('hex');
 };
 
 export default mongoose.model('VerificationToken', VerificationTokenSchema);

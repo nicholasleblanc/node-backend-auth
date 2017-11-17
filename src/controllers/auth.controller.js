@@ -2,7 +2,7 @@ import httpStatus from 'http-status';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 
-import { jwtSecret } from '../../config/config';
+import config from '../config/config';
 import User from '../models/user.model';
 import VerificationToken from '../models/verification-token.model';
 import ForgotPasswordToken from '../models/forgot-password-token.model';
@@ -29,11 +29,11 @@ const register = (req, res, next) => {
             locals: {
               token: generatedToken
             }
-          }).then(console.log); // TODO: Catch error, but figure out how to log but not notify user
+          }).then(console.log).catch(console.error); // TODO: Catch error, but figure out how to log but not notify user
         });
 
       // Generate JWT
-      const token = jwt.sign({ id: user._id, email: user.email }, jwtSecret, {
+      const token = jwt.sign({ id: user._id, email: user.email }, config.jwtSecret, {
         expiresIn: 86400 // Expires in 24 hours
       });
 
@@ -57,7 +57,7 @@ const login = (req, res, next) => {
     // Compare passwords, ensure they match
     user.comparePassword(req.body.password, (err, isMatch) => {
       if (isMatch && !err) {
-        var token = jwt.sign({ id: user._id, email: user.email }, jwtSecret);
+        var token = jwt.sign({ id: user._id, email: user.email }, config.jwtSecret);
 
         res.status(httpStatus.OK);
         res.json({ token });
@@ -73,6 +73,7 @@ const login = (req, res, next) => {
 
 const activate = (req, res, next) => {
   // Tokens live for 1 day
+  // TODO: This can be removed once we expire in MongoDB
   var yesterday = new Date();
   yesterday.setDate(yesterday.getDate() - 1);
 
@@ -129,7 +130,7 @@ const forgotPassword = (req, res, next) => {
             locals: {
               token: generatedToken
             }
-          }).then(console.log); // TODO: Catch error, but figure out how to log but not notify user
+          }).then(console.log).catch(console.error); // TODO: Catch error, but figure out how to log but not notify user
         });
     }
 
@@ -140,6 +141,8 @@ const forgotPassword = (req, res, next) => {
 
 const resetPassword = (req, res, next) => {
   // TODO: Ensure this is not happening too much, or lock account
+
+  // TODO: This can be removed once we expire in MongoDB
   var yesterday = new Date();
   yesterday.setDate(yesterday.getDate() - 1);
 

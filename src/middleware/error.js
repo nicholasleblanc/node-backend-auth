@@ -4,7 +4,6 @@ import APIError from '../helpers/APIError';
 
 /**
  * Error handler. Send stacktrace only during development
- * @public
  */
 const handler = (err, req, res, next) => {
   const response = {
@@ -21,7 +20,6 @@ const handler = (err, req, res, next) => {
 
 /**
  * If error is not an instanceOf APIError, convert it.
- * @public
  */
 const converter = (err, req, res, next) => {
   let convertedError = err;
@@ -47,7 +45,6 @@ const converter = (err, req, res, next) => {
 
 /**
  * Catch 404 and forward to error handler
- * @public
  */
 const notFound = (req, res, next) => {
   const err = new APIError({

@@ -10,7 +10,7 @@ const email = new Email({
   },
   views: {
     options: {
-      extension: 'nunjucks'
+      extension: 'ejs'
     },
     root: path.resolve('src/templates/emails')
   }
