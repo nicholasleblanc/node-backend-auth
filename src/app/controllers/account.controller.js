@@ -1,6 +1,7 @@
 import httpStatus from 'http-status';
 
 import APIError from '../helpers/APIError';
+import APIResponse from '../helpers/APIResponse';
 import User from '../models/user.model';
 
 const update = (req, res, next) => {
@@ -67,8 +68,7 @@ const update = (req, res, next) => {
     // Save user
     user.save()
       .then((savedUser) => {
-        res.status(httpStatus.OK);
-        res.json({ data: { } });
+        new APIResponse({ res });
       })
       .catch(error => next(error));
   })

@@ -7,6 +7,7 @@ import User from '../models/user.model';
 import VerificationToken from '../models/verification-token.model';
 import ForgotPasswordToken from '../models/forgot-password-token.model';
 import APIError from '../helpers/APIError';
+import APIResponse from '../helpers/APIResponse';
 import email from '../helpers/email';
 import logger from '../helpers/logger';
 
@@ -30,7 +31,7 @@ const register = (req, res, next) => {
             locals: {
               token: generatedToken
             }
-          }).then(console.log).catch((error) => {
+          }).catch((error) => {
             logger.error('Could not send activation email.', error);
           });
         });
@@ -40,15 +41,15 @@ const register = (req, res, next) => {
         expiresIn: 86400 // Expires in 24 hours.
       });
 
-      res.status(httpStatus.CREATED);
-      res.json({
+      new APIResponse({
+        res,
         data: {
           token,
           user: savedUser
         }
       });
     })
-    .catch(error => next(User.checkDuplicateemail(error)));
+    .catch(error => next(User.checkDuplicateEmail(error)));
 };
 
 const login = (req, res, next) => {
@@ -67,11 +68,9 @@ const login = (req, res, next) => {
         if (isMatch) {
           var token = jwt.sign({ id: user._id, email: user.email }, config.jwtSecret);
 
-          res.status(httpStatus.OK);
-          res.json({
-            data: {
-              token
-            }
+          new APIResponse({
+            res,
+            data: { token }
           });
         } else {
           return next(new APIError({
@@ -113,8 +112,7 @@ const activate = (req, res, next) => {
           // Verification token has been used, remove it.
           verificationToken.remove();
 
-          res.status(httpStatus.OK);
-          res.json({ data: { } });
+          new APIResponse({ res });
         })
         .catch(error => next(error));
     });
@@ -142,14 +140,13 @@ const forgotPassword = (req, res, next) => {
             locals: {
               token: generatedToken
             }
-          }).then(console.log).catch((error) => {
+          }).catch((error) => {
             logger.error('Could not send forgot password email.', error);
           });
         });
     }
 
-    res.status(httpStatus.OK);
-    res.json({ data: { } });
+    new APIResponse({ res });
   });
 };
 
@@ -184,8 +181,7 @@ const resetPassword = (req, res, next) => {
           // Forgot password token has been used, remove it.
           forgotPasswordToken.remove();
 
-          res.status(httpStatus.OK);
-          res.json({ data: { } });
+          new APIResponse({ res });
         })
         .catch(error => next(error));
     });

@@ -5,7 +5,7 @@ import mongoose from 'mongoose';
 import APIError from '../helpers/APIError';
 import config from '../../config/config';
 
-const ForgotPasswordTokenSchema = new mongoose.Schema({ // TODO: Expire instead of keeping forever.
+const ForgotPasswordTokenSchema = new mongoose.Schema({
   _userId: {
     type: mongoose.Schema.Types.ObjectId,
     required: true,

@@ -2,17 +2,22 @@ import httpStatus from 'http-status';
 import expressValidation from 'express-validation';
 import APIError from '../helpers/APIError';
 
+import config from '../../config/config';
+
 /**
  * Error handler.
- * TODO: Send stacktrace only during development.
  */
 const handler = (err, req, res, next) => {
   const response = {
     code: err.status,
     message: err.message || httpStatus[err.status],
-    errors: err.errors,
-    stack: err.stack,
+    errors: err.errors
   };
+
+  // Only show stacktrace on dev
+  if (config.dev) {
+    response.stack = err.stack
+  }
 
   res.status(err.status);
   res.json({ error: response });

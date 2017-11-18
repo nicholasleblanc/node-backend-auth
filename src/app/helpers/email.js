@@ -1,9 +1,11 @@
 import Email from 'email-templates';
 import path from 'path';
 
+import config from '../../config/config';
+
 const email = new Email({
   message: {
-    from: 'test@gmail.com' // TODO: Add to config, add name.
+    from: config.email.from
   },
   transport: {
     jsonTransport: true

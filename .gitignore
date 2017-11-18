@@ -49,3 +49,6 @@ node_modules
 
 # .env
 .env
+
+# Local config
+src/config/config.local.js
