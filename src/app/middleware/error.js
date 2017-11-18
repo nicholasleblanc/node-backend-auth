@@ -3,7 +3,8 @@ import expressValidation from 'express-validation';
 import APIError from '../helpers/APIError';
 
 /**
- * Error handler. Send stacktrace only during development
+ * Error handler.
+ * TODO: Send stacktrace only during development.
  */
 const handler = (err, req, res, next) => {
   const response = {
@@ -14,7 +15,7 @@ const handler = (err, req, res, next) => {
   };
 
   res.status(err.status);
-  res.json(response);
+  res.json({ error: response });
   res.end();
 };
 
@@ -44,7 +45,7 @@ const converter = (err, req, res, next) => {
 };
 
 /**
- * Catch 404 and forward to error handler
+ * Catch 404 and forward to error handler.
  */
 const notFound = (req, res, next) => {
   const err = new APIError({

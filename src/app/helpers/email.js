@@ -3,7 +3,7 @@ import path from 'path';
 
 const email = new Email({
   message: {
-    from: 'test@gmail.com' // TODO: Add to config, add name
+    from: 'test@gmail.com' // TODO: Add to config, add name.
   },
   transport: {
     jsonTransport: true

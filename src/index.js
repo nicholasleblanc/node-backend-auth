@@ -4,12 +4,12 @@ import logger from './app/helpers/logger'
 
 import config from './config/config'
 
-// Connect to MongoDB
+// Connect to MongoDB.
 mongoose.connect('mongodb://localhost/decisive-lobster', {
   useMongoClient: true
 });
 
-// Start server
+// Start server.
 app.listen(config.port, () => {
   logger.info(`RESTful API server started on: ${config.port}`)
 });

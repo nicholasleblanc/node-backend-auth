@@ -33,3 +33,4 @@ All endpoints are accessible at http://localhost:3000/api. Visiting http://local
 [ ] ACL: Groups, roles, and permissions.
 [ ] Allow user to change password.
 [ ] Allow user to change email address.
+[ ] Figure out testing! Would like to check out Jest.

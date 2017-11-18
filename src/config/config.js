@@ -1,11 +1,9 @@
 import devConfig from './environments/dev.environment'
 
-/**
- * Default configuration for all environments. Environment specific configs
- * extend from this one.
- */
+// Default configuration for all environments. Environment specific configs
+// extend from this one.
 const defaultConfig = {
-  port: 3000, // Server port
+  port: 3000, // Server port.
   dev: false, // Is development environment?
   test: false, // Is test environment?
   jwtSecret: 'secret',

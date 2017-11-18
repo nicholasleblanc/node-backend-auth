@@ -15,13 +15,13 @@ const register = (req, res, next) => {
 
   user.save()
     .then(savedUser => {
-      // Create email verification token
+      // Create email verification token.
       const generatedToken = crypto.randomBytes(16).toString('hex');
       const verificationToken = new VerificationToken({ _userId: savedUser._id, token: generatedToken });
 
       verificationToken.save()
         .then((savedVerificationToken) => {
-          // Send verification email
+          // Send verification email.
           email.send({
             template: 'verification-token',
             message: {
@@ -35,13 +35,18 @@ const register = (req, res, next) => {
           });
         });
 
-      // Generate JWT
+      // Generate JWT.
       const token = jwt.sign({ id: user._id, email: user.email }, config.jwtSecret, {
-        expiresIn: 86400 // Expires in 24 hours
+        expiresIn: 86400 // Expires in 24 hours.
       });
 
       res.status(httpStatus.CREATED);
-      res.json({ token, user: savedUser });
+      res.json({
+        data: {
+          token,
+          user: savedUser
+        }
+      });
     })
     .catch(error => next(User.checkDuplicateemail(error)));
 };
@@ -57,25 +62,29 @@ const login = (req, res, next) => {
       }));
     }
 
-    // Compare passwords, ensure they match
-    user.comparePassword(req.body.password, (err, isMatch) => {
-      if (isMatch && !err) {
-        var token = jwt.sign({ id: user._id, email: user.email }, config.jwtSecret);
+    user.comparePassword(req.body.password)
+      .then((isMatch) => {
+        if (isMatch) {
+          var token = jwt.sign({ id: user._id, email: user.email }, config.jwtSecret);
 
-        res.status(httpStatus.OK);
-        res.json({ token });
-      } else {
-        return next(new APIError({
-          message: 'Authentication failed.',
-          status: httpStatus.UNAUTHORIZED
-        }));
-      }
-    });
+          res.status(httpStatus.OK);
+          res.json({
+            data: {
+              token
+            }
+          });
+        } else {
+          return next(new APIError({
+            message: 'Authentication failed.',
+            status: httpStatus.UNAUTHORIZED
+          }));
+        }
+      });
   });
 };
 
 const activate = (req, res, next) => {
-  // Find verification token
+  // Find verification token.
   VerificationToken.findOne({ token: VerificationToken.getHash(req.body.token) }, (err, verificationToken) => {
     if (err) return next(err);
 
@@ -86,7 +95,7 @@ const activate = (req, res, next) => {
       }));
     }
 
-    // Lookup related user
+    // Lookup related user.
     User.findOne({ _id: verificationToken._userId }, (err, user) => {
       if (err) return next(err);
 
@@ -97,15 +106,15 @@ const activate = (req, res, next) => {
         }));
       }
 
-      // Verify and save the user
+      // Verify and save the user.
       user.isVerified = true;
       user.save()
         .then(() => {
-          // Verification token has been used, remove it
+          // Verification token has been used, remove it.
           verificationToken.remove();
 
           res.status(httpStatus.OK);
-          res.json({ success: true });
+          res.json({ data: { } });
         })
         .catch(error => next(error));
     });
@@ -113,7 +122,7 @@ const activate = (req, res, next) => {
 };
 
 const forgotPassword = (req, res, next) => {
-  // TODO: Ensure this is not happening too much, or lock account
+  // TODO: Ensure this is not happening too much, or lock account.
 
   User.findOne({ email: req.body.email }, (err, user) => {
     if (err) return next(err);
@@ -124,7 +133,7 @@ const forgotPassword = (req, res, next) => {
 
       forgotPasswordToken.save()
         .then((savedForgotPasswordToken) => {
-          // Send forgot password email
+          // Send forgot password email.
           email.send({
             template: 'forgot-password',
             message: {
@@ -140,12 +149,12 @@ const forgotPassword = (req, res, next) => {
     }
 
     res.status(httpStatus.OK);
-    res.json({ success: true });
+    res.json({ data: { } });
   });
 };
 
 const resetPassword = (req, res, next) => {
-  // Find forgot password token
+  // Find forgot password token.
   ForgotPasswordToken.findOne({ token: ForgotPasswordToken.getHash(req.body.token) }, (err, forgotPasswordToken) => {
     if (err) return next(err);
 
@@ -156,11 +165,11 @@ const resetPassword = (req, res, next) => {
       }));
     }
 
-    // Lookup related user
+    // Lookup related user.
     User.findOne({ _id: forgotPasswordToken._userId }, (err, user) => {
       if (err) return next(err);
 
-      // If supplied email does not match provided email, we have a problem
+      // If supplied email does not match provided email, we have a problem.
       if (user.email !== req.body.email) {
         return next(new APIError({
           message: 'Forgot password token does not exist or is not valid.',
@@ -168,15 +177,15 @@ const resetPassword = (req, res, next) => {
         }));
       }
 
-      // Set new password and save the user
+      // Set new password and save the user.
       user.password = req.body.newPassword;
       user.save()
         .then(() => {
-          // Forgot password token has been used, remove it
+          // Forgot password token has been used, remove it.
           forgotPasswordToken.remove();
 
           res.status(httpStatus.OK);
-          res.json({ success: true });
+          res.json({ data: { } });
         })
         .catch(error => next(error));
     });
