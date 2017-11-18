@@ -1,8 +1,16 @@
 # Decisive Lobster Backend - A very indecisive project.
 
+Not quite sure what we're building here. But it will be rock solid.
+
+## Requirements
+
+- [NodeJS](https://nodejs.org/en/)
+- [Yarn](https://yarnpkg.com/en/)
+- Brains
+
 ## Install
 
-Run the following commands from terminal after cloning the project:
+Run the following commands from terminal after cloning the repo:
 
 - `cd decisive-lobster-backend`
 - `yarn install`
