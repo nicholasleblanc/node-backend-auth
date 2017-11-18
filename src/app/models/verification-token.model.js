@@ -3,10 +3,12 @@ import httpStatus from 'http-status';
 import mongoose from 'mongoose';
 
 import APIError from '../helpers/APIError';
+import email from '../helpers/email';
+import logger from '../helpers/logger';
 import config from '../../config/config';
 
 const VerificationTokenSchema = new mongoose.Schema({
-  _userId: {
+  user: {
     type: mongoose.Schema.Types.ObjectId,
     required: true,
     ref: 'User'
@@ -34,6 +36,18 @@ VerificationTokenSchema.pre('save', function (next) {
     return next();
   }
 });
+
+VerificationTokenSchema.methods.sendEmail = function (token) {
+  return email.send({
+    template: 'verification-token',
+    message: {
+      to: this.user.email
+    },
+    locals: {
+      token: token
+    }
+  });
+};
 
 VerificationTokenSchema.statics.getHash = function (token) {
   return crypto.createHmac('sha256', config.hashSecret).update(token).digest('hex');

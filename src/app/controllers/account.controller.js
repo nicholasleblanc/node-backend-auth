@@ -1,15 +1,16 @@
 import httpStatus from 'http-status';
+import crypto from 'crypto';
 
 import APIError from '../helpers/APIError';
 import APIResponse from '../helpers/APIResponse';
 import User from '../models/user.model';
+import logger from '../helpers/logger';
+import VerificationToken from '../models/verification-token.model';
 
 const update = (req, res, next) => {
   const user = req.user;
   let comparePassword = true;
   let duplicateEmail = false;
-
-  let foo = 1;
 
   // User is trying to change password.
   if (req.body.password) {
@@ -17,7 +18,6 @@ const update = (req, res, next) => {
     // If not correct, then it's a no-go.
     comparePassword = req.user.comparePassword(req.body.password).then((isMatch) => {
       if (isMatch) {
-        foo = 2
         user.password = req.body.newPassword;
       }
 
@@ -68,10 +68,40 @@ const update = (req, res, next) => {
     // Save user
     user.save()
       .then((savedUser) => {
-        new APIResponse({ res });
+        new APIResponse({
+          res,
+          data: {
+            savedUser
+          }
+        });
       })
-      .catch(error => next(error));
+      .catch(error => {
+        logger.error('Unable to update user information.', error);
+        next(error)
+      });
   })
 };
 
-export default { update };
+const resendActivationEmail = (req, res, next) => {
+  const user = req.user;
+
+  // Create email verification token.
+  const generatedToken = crypto.randomBytes(16).toString('hex');
+  const verificationToken = new VerificationToken({ user, token: generatedToken });
+
+  verificationToken.save()
+    .then((savedVerificationToken) => {
+      savedVerificationToken.sendEmail(generatedToken).then(() => {
+        new APIResponse({ res });
+      }).catch((error) => {
+        logger.error('Could not send activation email.', error);
+
+        return next(new APIError({
+          message: 'Could not send activation email.',
+          status: httpStatus.INTERNAL_SERVER_ERROR,
+        }));
+      });
+    });
+};
+
+export default { update, resendActivationEmail };

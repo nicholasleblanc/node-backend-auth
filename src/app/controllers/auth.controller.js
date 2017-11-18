@@ -18,22 +18,14 @@ const register = (req, res, next) => {
     .then(savedUser => {
       // Create email verification token.
       const generatedToken = crypto.randomBytes(16).toString('hex');
-      const verificationToken = new VerificationToken({ _userId: savedUser._id, token: generatedToken });
+      const verificationToken = new VerificationToken({ user: savedUser, token: generatedToken });
 
       verificationToken.save()
         .then((savedVerificationToken) => {
-          // Send verification email.
-          email.send({
-            template: 'verification-token',
-            message: {
-              to: savedUser.email
-            },
-            locals: {
-              token: generatedToken
-            }
-          }).catch((error) => {
-            logger.error('Could not send activation email.', error);
-          });
+          savedVerificationToken.sendEmail(generatedToken)
+            .catch((error) => {
+              logger.error('Could not send activation email.', error);
+            });
         });
 
       // Generate JWT.
@@ -95,7 +87,7 @@ const activate = (req, res, next) => {
     }
 
     // Lookup related user.
-    User.findOne({ _id: verificationToken._userId }, (err, user) => {
+    User.findOne({ _id: verificationToken.user }, (err, user) => {
       if (err) return next(err);
 
       if (user.isVerified) {
@@ -114,35 +106,29 @@ const activate = (req, res, next) => {
 
           new APIResponse({ res });
         })
-        .catch(error => next(error));
+        .catch(error => {
+          logger.error('Unable to activate user.', error);
+          next(error)
+        });
     });
   });
 };
 
 const forgotPassword = (req, res, next) => {
-  // TODO: Ensure this is not happening too much, or lock account.
-
   User.findOne({ email: req.body.email }, (err, user) => {
     if (err) return next(err);
 
     if (user) {
       const generatedToken = crypto.randomBytes(16).toString('hex');
-      const forgotPasswordToken = new ForgotPasswordToken({ _userId: user._id, token: generatedToken });
+      const forgotPasswordToken = new ForgotPasswordToken({ user, token: generatedToken });
+      console.log(user.email)
 
       forgotPasswordToken.save()
         .then((savedForgotPasswordToken) => {
-          // Send forgot password email.
-          email.send({
-            template: 'forgot-password',
-            message: {
-              to: user.email
-            },
-            locals: {
-              token: generatedToken
-            }
-          }).catch((error) => {
-            logger.error('Could not send forgot password email.', error);
-          });
+          savedForgotPasswordToken.sendEmail(generatedToken)
+            .catch((error) => {
+              logger.error('Could not send forgot password email.', error);
+            });
         });
     }
 
@@ -163,27 +149,33 @@ const resetPassword = (req, res, next) => {
     }
 
     // Lookup related user.
-    User.findOne({ _id: forgotPasswordToken._userId }, (err, user) => {
+    console.log('in0')
+    User.findOne({ _id: forgotPasswordToken.user }, (err, user) => {
       if (err) return next(err);
+      console.log('in1', user, user.email, req.body.email)
+      if (user && user.email === req.body.email) {
+        console.log('in2')
 
-      // If supplied email does not match provided email, we have a problem.
-      if (user.email !== req.body.email) {
+        // Set new password and save the user.
+        user.password = req.body.newPassword;
+        user.save()
+          .then(() => {
+            // Forgot password token has been used, remove it.
+            forgotPasswordToken.remove();
+
+            new APIResponse({ res });
+          })
+          .catch(error => {
+            logger.error('Unable to reset user password.', error);
+            next(error);
+          });
+      } else {
+        // If user does not exist or supplied email does not match provided email, we have a problem.
         return next(new APIError({
           message: 'Forgot password token does not exist or is not valid.',
           status: httpStatus.BAD_REQUEST
         }));
       }
-
-      // Set new password and save the user.
-      user.password = req.body.newPassword;
-      user.save()
-        .then(() => {
-          // Forgot password token has been used, remove it.
-          forgotPasswordToken.remove();
-
-          new APIResponse({ res });
-        })
-        .catch(error => next(error));
     });
   });
 };
