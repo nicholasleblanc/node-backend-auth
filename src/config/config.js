@@ -5,8 +5,9 @@ import devConfig from './environments/dev.environment'
  * extend from this one.
  */
 const defaultConfig = {
-  port: 3000,
-  dev: false,
+  port: 3000, // Server port
+  dev: false, // Is development environment?
+  test: false, // Is test environment?
   jwtSecret: 'secret',
   hashSecret: 'secret'
 };

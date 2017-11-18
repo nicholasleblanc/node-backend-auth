@@ -2,12 +2,13 @@ import httpStatus from 'http-status';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 
-import config from '../config/config';
+import config from '../../config/config';
 import User from '../models/user.model';
 import VerificationToken from '../models/verification-token.model';
 import ForgotPasswordToken from '../models/forgot-password-token.model';
 import APIError from '../helpers/APIError';
-import Email from '../helpers/Email';
+import email from '../helpers/email';
+import logger from '../helpers/logger';
 
 const register = (req, res, next) => {
   const user = new User(req.body);
@@ -21,7 +22,7 @@ const register = (req, res, next) => {
       verificationToken.save()
         .then((savedVerificationToken) => {
           // Send verification email
-          Email.send({
+          email.send({
             template: 'verification-token',
             message: {
               to: savedUser.email
@@ -29,7 +30,9 @@ const register = (req, res, next) => {
             locals: {
               token: generatedToken
             }
-          }).then(console.log).catch(console.error); // TODO: Catch error, but figure out how to log but not notify user
+          }).then(console.log).catch((error) => {
+            logger.error('Could not send activation email.', error);
+          });
         });
 
       // Generate JWT
@@ -40,7 +43,7 @@ const register = (req, res, next) => {
       res.status(httpStatus.CREATED);
       res.json({ token, user: savedUser });
     })
-    .catch(error => next(User.checkDuplicateEmail(error)));
+    .catch(error => next(User.checkDuplicateemail(error)));
 };
 
 const login = (req, res, next) => {
@@ -72,13 +75,8 @@ const login = (req, res, next) => {
 };
 
 const activate = (req, res, next) => {
-  // Tokens live for 1 day
-  // TODO: This can be removed once we expire in MongoDB
-  var yesterday = new Date();
-  yesterday.setDate(yesterday.getDate() - 1);
-
   // Find verification token
-  VerificationToken.findOne({ token: VerificationToken.getHash(req.body.token), createdAt: { $gte: yesterday } }, (err, verificationToken) => {
+  VerificationToken.findOne({ token: VerificationToken.getHash(req.body.token) }, (err, verificationToken) => {
     if (err) return next(err);
 
     if (!verificationToken) {
@@ -103,6 +101,9 @@ const activate = (req, res, next) => {
       user.isVerified = true;
       user.save()
         .then(() => {
+          // Verification token has been used, remove it
+          verificationToken.remove();
+
           res.status(httpStatus.OK);
           res.json({ success: true });
         })
@@ -112,6 +113,8 @@ const activate = (req, res, next) => {
 };
 
 const forgotPassword = (req, res, next) => {
+  // TODO: Ensure this is not happening too much, or lock account
+
   User.findOne({ email: req.body.email }, (err, user) => {
     if (err) return next(err);
 
@@ -122,7 +125,7 @@ const forgotPassword = (req, res, next) => {
       forgotPasswordToken.save()
         .then((savedForgotPasswordToken) => {
           // Send forgot password email
-          Email.send({
+          email.send({
             template: 'forgot-password',
             message: {
               to: user.email
@@ -130,7 +133,9 @@ const forgotPassword = (req, res, next) => {
             locals: {
               token: generatedToken
             }
-          }).then(console.log).catch(console.error); // TODO: Catch error, but figure out how to log but not notify user
+          }).then(console.log).catch((error) => {
+            logger.error('Could not send forgot password email.', error);
+          });
         });
     }
 
@@ -140,14 +145,8 @@ const forgotPassword = (req, res, next) => {
 };
 
 const resetPassword = (req, res, next) => {
-  // TODO: Ensure this is not happening too much, or lock account
-
-  // TODO: This can be removed once we expire in MongoDB
-  var yesterday = new Date();
-  yesterday.setDate(yesterday.getDate() - 1);
-
   // Find forgot password token
-  ForgotPasswordToken.findOne({ token: ForgotPasswordToken.getHash(req.body.token), createdAt: { $gte: yesterday }, used: false }, (err, forgotPasswordToken) => {
+  ForgotPasswordToken.findOne({ token: ForgotPasswordToken.getHash(req.body.token) }, (err, forgotPasswordToken) => {
     if (err) return next(err);
 
     if (!forgotPasswordToken) {
@@ -173,9 +172,8 @@ const resetPassword = (req, res, next) => {
       user.password = req.body.newPassword;
       user.save()
         .then(() => {
-          // Mark the forgot password token as used
-          forgotPasswordToken.used = true;
-          forgotPasswordToken.save();
+          // Forgot password token has been used, remove it
+          forgotPasswordToken.remove();
 
           res.status(httpStatus.OK);
           res.json({ success: true });

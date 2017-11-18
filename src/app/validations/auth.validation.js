@@ -1,6 +1,13 @@
 import joi from 'joi';
 
-const createUser = {
+const register = {
+  body: {
+    email: joi.string().email().required(),
+    password: joi.string().min(6).max(128).required()
+  }
+};
+
+const login = {
   body: {
     email: joi.string().email().required(),
     password: joi.string().min(6).max(128).required()
@@ -27,4 +34,4 @@ const resetPassword = {
   }
 }
 
-export { createUser, activate, forgotPassword, resetPassword };
+export { register, login, activate, forgotPassword, resetPassword };

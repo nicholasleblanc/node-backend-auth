@@ -1,6 +1,6 @@
 import app from './config/express';
 import mongoose from './config/mongoose'
-import winstonInstance from './config/winston'
+import logger from './app/helpers/logger'
 
 import config from './config/config'
 
@@ -11,7 +11,7 @@ mongoose.connect('mongodb://localhost/decisive-lobster', {
 
 // Start server
 app.listen(config.port, () => {
-  winstonInstance.info(`RESTful API server started on: ${config.port}`)
+  logger.info(`RESTful API server started on: ${config.port}`)
 });
 
 export default app;

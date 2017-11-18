@@ -3,9 +3,9 @@ import httpStatus from 'http-status';
 import mongoose from 'mongoose';
 
 import APIError from '../helpers/APIError';
-import config from '../config/config';
+import config from '../../config/config';
 
-const VerificationTokenSchema = new mongoose.Schema({ // TODO: Expire instead of keeping forever
+const VerificationTokenSchema = new mongoose.Schema({
   _userId: {
     type: mongoose.Schema.Types.ObjectId,
     required: true,
@@ -14,9 +14,12 @@ const VerificationTokenSchema = new mongoose.Schema({ // TODO: Expire instead of
   token: {
     type: String,
     required: true
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+    expires: 86400
   }
-}, {
-  timestamps: true
 });
 
 VerificationTokenSchema.pre('save', function (next) {

@@ -3,7 +3,7 @@ import httpStatus from 'http-status';
 import mongoose from 'mongoose';
 
 import APIError from '../helpers/APIError';
-import config from '../config/config';
+import config from '../../config/config';
 
 const ForgotPasswordTokenSchema = new mongoose.Schema({ // TODO: Expire instead of keeping forever
   _userId: {
@@ -15,12 +15,11 @@ const ForgotPasswordTokenSchema = new mongoose.Schema({ // TODO: Expire instead 
     type: String,
     required: true
   },
-  used: {
-    type: Boolean,
-    default: false
+  createdAt: {
+    type: Date,
+    default: Date.now,
+    expires: 86400
   }
-}, {
-  timestamps: true
 });
 
 ForgotPasswordTokenSchema.pre('save', function (next) {

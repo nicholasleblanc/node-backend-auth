@@ -3,13 +3,12 @@ import bodyParser from 'body-parser';
 import expressWinston from 'express-winston';
 import passport from 'passport';
 
-import routes from '../routes/index.route';
-import error from '../middleware/error';
-import APIError from '../helpers/APIError';
-
+import routes from '../app/routes/index.route';
+import error from '../app/middleware/error';
+import APIError from '../app/helpers/APIError';
+import logger from '../app/helpers/logger';
 import config from './config';
 import strategies from './passport';
-import winstonInstance from './winston';
 
 const app = express();
 
@@ -21,25 +20,27 @@ app.use(bodyParser.json());
 app.use(passport.initialize());
 passport.use(strategies.jwt);
 
-// Detailed logging on DEV
+// Detailed logging on dev env
 if (config.dev) {
   expressWinston.requestWhitelist.push('body');
   expressWinston.responseWhitelist.push('body');
   app.use(expressWinston.logger({
-    winstonInstance,
+    winstonInstance: logger,
     meta: true,
     msg: 'HTTP {{req.method}} {{req.url}} {{res.statusCode}} {{res.responseTime}}ms',
     colorStatus: true
   }));
 }
 
-// This should happen everywhere except test environment
-app.use(expressWinston.errorLogger({
-  winstonInstance
-}));
-
 // Load up all API routes at /api
 app.use('/api', routes);
+
+// Log errors in Winston transports except when running tests
+if (!config.test) {
+  app.use(expressWinston.errorLogger({
+    winstonInstance: logger
+  }));
+}
 
 // If error is not an instanceOf APIError, convert it.
 app.use(error.converter);

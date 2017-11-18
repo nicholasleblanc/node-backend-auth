@@ -5,7 +5,7 @@ const ExtractJwt = passportJWT.ExtractJwt;
 const JwtStrategy = passportJWT.Strategy;
 
 import config from './config';
-import User from '../models/user.model';
+import User from '../app/models/user.model';
 
 const jwtOptions = {
   jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),

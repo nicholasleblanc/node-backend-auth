@@ -18,7 +18,10 @@ All endpoints are accessible at http://localhost:3000/api. Visiting http://local
 [X] Move Passport config to own file.
 [X] Move Mongoose config to own file.
 [X] Move Winston config to own file.
-[ ] Add expiry to token models instead of checking created date.
+[X] Figure out system logging vs API response messaging.
+[ ] Ensure we're checking for active accounts when accessing authenticated pages.
+[X] Add expiry to token models instead of checking created date.
 [ ] Add rate limiting to reset password.
+[ ] ACL: Groups, roles, and permissions.
 [ ] Allow user to change password.
 [ ] Allow user to change email address.
