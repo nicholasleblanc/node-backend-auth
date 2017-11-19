@@ -57,12 +57,12 @@ UserSchema.methods.comparePassword = function (password, cb) {
   return bcrypt.compare(password, this.password);
 };
 
-UserSchema.statics.checkDuplicateEmail = (error) => {
+UserSchema.statics.checkDuplicateEmail = error => {
   if (error.name === 'MongoError' && error.code === 11000) {
     return new APIError({
       message: 'Validation Error',
       errors: [{
-        field: 'email',
+        field: ['email'],
         location: 'body',
         messages: ['"email" already exists'],
       }],

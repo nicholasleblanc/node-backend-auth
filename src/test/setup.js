@@ -1,5 +1,15 @@
-import mongoose from 'mongoose';
+import config from '../config/config';
+import mongoose from '../config/mongoose';
 
+// Connect to MongoDB.
+// FIXME: This is causing a memory leak when running tests on watch mode.
+// Need to figure out how to ensure we only have a single connection for all
+// test suites.
+mongoose.connect(config.mongodb, {
+  useMongoClient: true
+});
+
+// Wipe out all data in database.
 const clearDatabase = () => {
   return new Promise(resolve => {
     let cont = 0;

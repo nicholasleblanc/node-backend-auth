@@ -16,7 +16,7 @@ const update = (req, res, next) => {
   if (req.body.password) {
     // Before changing the password, ensure current one provided is correct.
     // If not correct, then it's a no-go.
-    comparePassword = req.user.comparePassword(req.body.password).then((isMatch) => {
+    comparePassword = req.user.comparePassword(req.body.password).then(isMatch => {
       if (isMatch) {
         user.password = req.body.newPassword;
       }
@@ -28,7 +28,7 @@ const update = (req, res, next) => {
   // User is trying to change email.
   if (req.body.email && req.body.email !== user.email) {
     // Check for dupes
-    duplicateEmail = User.findOne({ email: req.body.email }).then((userFound) => {
+    duplicateEmail = User.findOne({ email: req.body.email }).then(userFound => {
       user.email = req.body.email;
 
       return userFound || false;
@@ -36,13 +36,13 @@ const update = (req, res, next) => {
   }
 
   // Wait for all promises to resolve before proceeding.
-  Promise.all([comparePassword, duplicateEmail]).then((values) => {
+  Promise.all([comparePassword, duplicateEmail]).then(values => {
     // Password was incorrect, let's return an error.
     if (!values[0]) {
       return next(new APIError({
         message: 'Validation Error',
         errors: [{
-          field: 'password',
+          field: ['password'],
           location: 'body',
           messages: ['"password" is incorrect'],
         }],
@@ -56,7 +56,7 @@ const update = (req, res, next) => {
       return next(new APIError({
         message: 'Validation Error',
         errors: [{
-          field: 'email',
+          field: ['email'],
           location: 'body',
           messages: ['"email" already exists'],
         }],
@@ -67,7 +67,7 @@ const update = (req, res, next) => {
 
     // Save user
     user.save()
-      .then((savedUser) => {
+      .then(savedUser => {
         new APIResponse({
           res,
           data: {
@@ -93,7 +93,7 @@ const resendActivationEmail = (req, res, next) => {
     .then((savedVerificationToken) => {
       savedVerificationToken.sendEmail(generatedToken).then(() => {
         new APIResponse({ res });
-      }).catch((error) => {
+      }).catch(error => {
         logger.error('Could not send activation email.', error);
 
         return next(new APIError({

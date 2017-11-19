@@ -1,9 +1,6 @@
 import fs from 'fs';
 import path from 'path';
 
-import devConfig from './environments/dev.environment'
-import testConfig from './environments/test.environment'
-
 // Default configuration for all environments. Environment specific configs
 // extend from this one.
 const defaultConfig = {
@@ -21,9 +18,11 @@ const defaultConfig = {
 /**
  * Load up the proper config based on environment.
  */
-const createConfig = (defaultConfig) => {
+const createConfig = defaultConfig => {
   let localConfig = {};
   let localConfigFile = path.join(__dirname, './config.local.js')
+  let environmentConfig = {};
+  let environmentConfigFile = path.join(__dirname, `./environments/${process.env.NODE_ENV}.environment.js`);
 
   // Load up local config if one exists.
   // Local config location is: /src/config/config.local.js
@@ -31,13 +30,12 @@ const createConfig = (defaultConfig) => {
     localConfig = require(localConfigFile).default;
   }
 
-  switch (process.env.NODE_ENV) {
-    case 'test':
-      return Object.assign({}, defaultConfig, testConfig, localConfig);
-    case 'development':
-    default:
-      return Object.assign({}, defaultConfig, devConfig, localConfig);
+  // Load up environment config if one exists.
+  if (fs.existsSync(environmentConfigFile)) {
+    environmentConfig = require(environmentConfigFile).default;
   }
+
+  return Object.assign({}, defaultConfig, environmentConfig, localConfig);
 }
 
 export default createConfig(defaultConfig);

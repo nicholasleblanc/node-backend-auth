@@ -23,7 +23,7 @@ const register = (req, res, next) => {
       verificationToken.save()
         .then((savedVerificationToken) => {
           savedVerificationToken.sendEmail(generatedToken)
-            .catch((error) => {
+            .catch(error => {
               logger.error('Could not send activation email.', error);
             });
         });
@@ -45,135 +45,150 @@ const register = (req, res, next) => {
 };
 
 const login = (req, res, next) => {
-  User.findOne({ email: req.body.email }, (err, user) => {
-    if (err) return next(err);
+  User.findOne({ email: req.body.email })
+    .then(user => {
+      if (!user) {
+        return next(new APIError({
+          message: 'Authentication failed.',
+          status: httpStatus.UNAUTHORIZED
+        }));
+      }
 
-    if (!user) {
-      return next(new APIError({
-        message: 'Authentication failed.',
-        status: httpStatus.UNAUTHORIZED
-      }));
-    }
+      user.comparePassword(req.body.password)
+        .then(isMatch => {
+          if (isMatch) {
+            var token = jwt.sign({ id: user._id, email: user.email }, config.jwtSecret);
 
-    user.comparePassword(req.body.password)
-      .then((isMatch) => {
-        if (isMatch) {
-          var token = jwt.sign({ id: user._id, email: user.email }, config.jwtSecret);
-
-          new APIResponse({
-            res,
-            data: { token }
-          });
-        } else {
-          return next(new APIError({
-            message: 'Authentication failed.',
-            status: httpStatus.UNAUTHORIZED
-          }));
-        }
-      });
-  });
+            new APIResponse({
+              res,
+              data: { token }
+            });
+          } else {
+            return next(new APIError({
+              message: 'Authentication failed.',
+              status: httpStatus.UNAUTHORIZED
+            }));
+          }
+        });
+    })
+    .catch(error => next(error));
 };
 
 const activate = (req, res, next) => {
   // Find verification token.
-  VerificationToken.findOne({ token: VerificationToken.getHash(req.body.token) }, (err, verificationToken) => {
-    if (err) return next(err);
-
-    if (!verificationToken) {
-      return next(new APIError({
-        message: 'Verification token does not exist or is not valid.',
-        status: httpStatus.BAD_REQUEST
-      }));
-    }
-
-    // Lookup related user.
-    User.findOne({ _id: verificationToken.user }, (err, user) => {
-      if (err) return next(err);
-
-      if (user.isVerified) {
+  VerificationToken.findOne({ token: VerificationToken.getHash(req.body.token) })
+    .then(verificationToken => {
+      if (!verificationToken) {
         return next(new APIError({
-          message: 'User already verified.',
+          message: 'Validation Error',
+          errors: [{
+            field: ['token'],
+            location: 'body',
+            messages: ['"token" is incorrect'],
+          }],
           status: httpStatus.BAD_REQUEST
         }));
       }
 
-      // Verify and save the user.
-      user.isVerified = true;
-      user.save()
-        .then(() => {
-          // Verification token has been used, remove it.
-          verificationToken.remove();
+      // Lookup related user.
+      User.findOne({ _id: verificationToken.user })
+        .then(user => {
+          if (user.isVerified) {
+            return next(new APIError({
+              message: 'User already verified.',
+              status: httpStatus.BAD_REQUEST
+            }));
+          }
 
-          new APIResponse({ res });
+          // Verify and save the user.
+          user.isVerified = true;
+          user.save()
+            .then(() => {
+              // Verification token has been used, remove it.
+              verificationToken.remove();
+
+              new APIResponse({ res });
+            })
+            .catch(error => {
+              logger.error('Unable to activate user.', error);
+              next(error);
+            });
         })
-        .catch(error => {
-          logger.error('Unable to activate user.', error);
-          next(error)
-        });
-    });
-  });
+        .catch(error=> next(error));
+    })
+    .catch(error => next(error));
 };
 
 const forgotPassword = (req, res, next) => {
-  User.findOne({ email: req.body.email }, (err, user) => {
-    if (err) return next(err);
+  User.findOne({ email: req.body.email })
+    .then(user => {
+      if (user) {
+        const generatedToken = crypto.randomBytes(16).toString('hex');
+        const forgotPasswordToken = new ForgotPasswordToken({ user, token: generatedToken });
 
-    if (user) {
-      const generatedToken = crypto.randomBytes(16).toString('hex');
-      const forgotPasswordToken = new ForgotPasswordToken({ user, token: generatedToken });
+        forgotPasswordToken.save()
+          .then(savedForgotPasswordToken => {
+            savedForgotPasswordToken.sendEmail(generatedToken)
+              .catch(error => {
+                logger.error('Could not send forgot password email.', error);
+              });
+          });
+      }
 
-      forgotPasswordToken.save()
-        .then((savedForgotPasswordToken) => {
-          savedForgotPasswordToken.sendEmail(generatedToken)
-            .catch((error) => {
-              logger.error('Could not send forgot password email.', error);
-            });
-        });
-    }
-
-    new APIResponse({ res });
-  });
+      new APIResponse({ res });
+    })
+    .catch(error => next(error));
 };
 
 const resetPassword = (req, res, next) => {
   // Find forgot password token.
-  ForgotPasswordToken.findOne({ token: ForgotPasswordToken.getHash(req.body.token) }, (err, forgotPasswordToken) => {
-    if (err) return next(err);
-
-    if (!forgotPasswordToken) {
-      return next(new APIError({
-        message: 'Forgot password token does not exist or is not valid.',
-        status: httpStatus.BAD_REQUEST
-      }));
-    }
-
-    // Lookup related user.
-    User.findOne({ _id: forgotPasswordToken.user }, (err, user) => {
-      if (err) return next(err);
-
-      if (user && user.email === req.body.email) {
-        // Set new password and save the user.
-        user.password = req.body.newPassword;
-        user.save()
-          .then(() => {
-            // Forgot password token has been used, remove it.
-            forgotPasswordToken.remove();
-
-            new APIResponse({ res });
-          })
-          .catch(error => {
-            logger.error('Unable to reset user password.', error);
-            next(error);
-          });
-      } else {
-        // If user does not exist or supplied email does not match provided email, we have a problem.
+  ForgotPasswordToken.findOne({ token: ForgotPasswordToken.getHash(req.body.token) })
+    .then(forgotPasswordToken => {
+      if (!forgotPasswordToken) {
         return next(new APIError({
-          message: 'Forgot password token does not exist or is not valid.',
+          message: 'Validation Error',
+          errors: [{
+            field: ['token'],
+            location: 'body',
+            messages: ['"token" is incorrect'],
+          }],
           status: httpStatus.BAD_REQUEST
         }));
       }
-    });
-  });
+
+      // Lookup related user.
+      User.findOne({ _id: forgotPasswordToken.user })
+        .then(user => {
+          if (user && user.email === req.body.email) {
+            // Set new password and save the user.
+            user.password = req.body.newPassword;
+            user.save()
+              .then(() => {
+                // Forgot password token has been used, remove it.
+                forgotPasswordToken.remove();
+
+                new APIResponse({ res });
+              })
+              .catch(error => {
+                logger.error('Unable to reset user password.', error);
+                next(error);
+              });
+          } else {
+            // If user does not exist or supplied email does not match provided email, we have a problem.
+            return next(new APIError({
+              message: 'Validation Error',
+              errors: [{
+                field: ['token'],
+                location: 'body',
+                messages: ['"token" is incorrect'],
+              }],
+              status: httpStatus.BAD_REQUEST
+            }));
+          }
+        })
+        .catch(error => next(error));
+    })
+    .catch(error => next(error));
 };
 
 export default { register, activate, login, forgotPassword, resetPassword };
