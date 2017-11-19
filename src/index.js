@@ -5,8 +5,7 @@ import logger from './app/helpers/logger'
 import config from './config/config'
 
 // Connect to MongoDB.
-mongoose.connect(`mongodb://${config.mongodb.user}:${config.mongodb.pass}@` +
-  `${config.mongodb.host}:${config.mongodb.port}/${config.mongodb.name}`, {
+mongoose.connect(config.mongodb, {
   useMongoClient: true
 });
 

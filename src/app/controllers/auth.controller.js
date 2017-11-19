@@ -121,7 +121,6 @@ const forgotPassword = (req, res, next) => {
     if (user) {
       const generatedToken = crypto.randomBytes(16).toString('hex');
       const forgotPasswordToken = new ForgotPasswordToken({ user, token: generatedToken });
-      console.log(user.email)
 
       forgotPasswordToken.save()
         .then((savedForgotPasswordToken) => {
@@ -149,13 +148,10 @@ const resetPassword = (req, res, next) => {
     }
 
     // Lookup related user.
-    console.log('in0')
     User.findOne({ _id: forgotPasswordToken.user }, (err, user) => {
       if (err) return next(err);
-      console.log('in1', user, user.email, req.body.email)
-      if (user && user.email === req.body.email) {
-        console.log('in2')
 
+      if (user && user.email === req.body.email) {
         // Set new password and save the user.
         user.password = req.body.newPassword;
         user.save()

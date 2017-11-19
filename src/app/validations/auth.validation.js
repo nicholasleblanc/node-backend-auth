@@ -2,7 +2,7 @@ import joi from 'joi';
 
 const register = {
   body: {
-    email: joi.string().email().required(),
+    email: joi.string().email({ minDomainAtoms: 2 }).required(),
     password: joi.string().min(6).max(128).required()
   }
 };

@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 
 import devConfig from './environments/dev.environment'
+import testConfig from './environments/test.environment'
 
 // Default configuration for all environments. Environment specific configs
 // extend from this one.
@@ -11,13 +12,7 @@ const defaultConfig = {
   test: false, // Is test environment?
   jwtSecret: 'secret',
   hashSecret: 'secret',
-  mongodb: {
-    user: '',
-    pass: '',
-    host: '',
-    port: 0,
-    name: '' // Name of database.
-  },
+  mongodb: 'mongodb://localhost/decisive-lobster',
   email: {
     from: 'John Smith <test@gmail.com>' // Email from address.
   }
@@ -36,7 +31,9 @@ const createConfig = (defaultConfig) => {
     localConfig = require(localConfigFile).default;
   }
 
-  switch(process.env.NODE_ENV){
+  switch (process.env.NODE_ENV) {
+    case 'test':
+      return Object.assign({}, defaultConfig, testConfig, localConfig);
     case 'development':
     default:
       return Object.assign({}, defaultConfig, devConfig, localConfig);
