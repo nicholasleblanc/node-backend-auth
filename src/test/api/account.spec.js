@@ -110,3 +110,28 @@ describe('/api/account', () => {
       });
   });
 });
+
+describe('/api/account/resend-activation-email', () => {
+  test('It should resend account activation email.', () => {
+    return new UserFixture().save()
+      .then(user => {
+        return request(app).get('/api/account/resend-activation-email')
+          .set('Authorization', `Bearer ${user.getJwtToken()}`)
+          .send();
+      })
+      .then(response => {
+        expect(response.statusCode).toBe(200);
+      });
+  });
+
+  test('It should not allow unauthenticated users to access the page.', () => {
+    return new UserFixture().save()
+      .then(user => {
+        return request(app).get('/api/account/resend-activation-email')
+          .send();
+      })
+      .then(response => {
+        expect(response.statusCode).toBe(401);
+      });
+  });
+});

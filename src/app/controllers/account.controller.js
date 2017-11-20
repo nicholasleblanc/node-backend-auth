@@ -36,9 +36,9 @@ const update = (req, res, next) => {
   }
 
   // Wait for all promises to resolve before proceeding.
-  Promise.all([comparePassword, duplicateEmail]).then(values => {
+  Promise.all([comparePassword, duplicateEmail]).then(([isValidPassword, isDuplicateEmail]) => {
     // Password was incorrect, let's return an error.
-    if (!values[0]) {
+    if (!isValidPassword) {
       return next(new APIError({
         message: 'Validation Error',
         errors: [{
@@ -52,7 +52,7 @@ const update = (req, res, next) => {
     }
 
     // New email address already exists.
-    if (values[1]) {
+    if (isDuplicateEmail) {
       return next(new APIError({
         message: 'Validation Error',
         errors: [{
@@ -86,7 +86,7 @@ const resendActivationEmail = (req, res, next) => {
   const user = req.user;
 
   // Create email verification token.
-  const generatedToken = crypto.randomBytes(16).toString('hex');
+  const generatedToken = VerificationToken.generateToken();
   const verificationToken = new VerificationToken({ user, token: generatedToken });
 
   verificationToken.save()
