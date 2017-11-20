@@ -71,7 +71,7 @@ const update = (req, res, next) => {
         new APIResponse({
           res,
           data: {
-            savedUser
+            user: savedUser
           }
         });
       })

@@ -22,9 +22,8 @@ All endpoints are accessible at http://localhost:3000/api. Visiting http://local
 
 You can create a local environment config file by creating `/src/config/config.local.js`. From here you can overwrite any default or environment configuration options.
 
-### Testing
+### Commands
 
-There are two options for running tests:
-
+- `npm run`: Run development server.
 - `npm test`: Run tests once.
-- `npm run test:watch`: Watch code for changes and re-run tests each time any *.js files are changed.
+- `npm run test:watch`: Watch code for changes and re-run tests each time any `*.js` files are changed.

@@ -53,4 +53,8 @@ ForgotPasswordTokenSchema.statics.getHash = function (token) {
   return crypto.createHmac('sha256', config.hashSecret).update(token).digest('hex');
 };
 
+ForgotPasswordTokenSchema.statics.generateToken = () => {
+  return crypto.randomBytes(16).toString('hex');
+}
+
 export default mongoose.model('ForgotPasswordToken', ForgotPasswordTokenSchema);

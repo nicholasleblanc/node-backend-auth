@@ -53,4 +53,8 @@ VerificationTokenSchema.statics.getHash = function (token) {
   return crypto.createHmac('sha256', config.hashSecret).update(token).digest('hex');
 };
 
+VerificationTokenSchema.statics.generateToken = () => {
+  return crypto.randomBytes(16).toString('hex');
+}
+
 export default mongoose.model('VerificationToken', VerificationTokenSchema);

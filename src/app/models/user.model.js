@@ -1,8 +1,10 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcrypt';
 import httpStatus from 'http-status';
+import jwt from 'jsonwebtoken';
 
 import APIError from '../helpers/APIError';
+import config from '../../config/config';
 
 const UserSchema = new mongoose.Schema({
   email: {
@@ -53,9 +55,13 @@ UserSchema.pre('save', function (next) {
   }
 });
 
-UserSchema.methods.comparePassword = function (password, cb) {
+UserSchema.methods.comparePassword = function (password) {
   return bcrypt.compare(password, this.password);
 };
+
+UserSchema.methods.getJwtToken = function () {
+  return jwt.sign({ id: this._id, email: this.email }, config.jwtSecret);
+}
 
 UserSchema.statics.checkDuplicateEmail = error => {
   if (error.name === 'MongoError' && error.code === 11000) {

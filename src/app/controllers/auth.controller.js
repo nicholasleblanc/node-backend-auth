@@ -1,5 +1,4 @@
 import httpStatus from 'http-status';
-import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 
 import config from '../../config/config';
@@ -17,7 +16,7 @@ const register = (req, res, next) => {
   user.save()
     .then(savedUser => {
       // Create email verification token.
-      const generatedToken = crypto.randomBytes(16).toString('hex');
+      const generatedToken = VerificationToken.generateToken();
       const verificationToken = new VerificationToken({ user: savedUser, token: generatedToken });
 
       verificationToken.save()
@@ -29,9 +28,7 @@ const register = (req, res, next) => {
         });
 
       // Generate JWT.
-      const token = jwt.sign({ id: user._id, email: user.email }, config.jwtSecret, {
-        expiresIn: 86400 // Expires in 24 hours.
-      });
+      const token = savedUser.getJwtToken();
 
       new APIResponse({
         res,
@@ -57,7 +54,7 @@ const login = (req, res, next) => {
       user.comparePassword(req.body.password)
         .then(isMatch => {
           if (isMatch) {
-            var token = jwt.sign({ id: user._id, email: user.email }, config.jwtSecret);
+            var token = user.getJwtToken();
 
             new APIResponse({
               res,
@@ -123,7 +120,7 @@ const forgotPassword = (req, res, next) => {
   User.findOne({ email: req.body.email })
     .then(user => {
       if (user) {
-        const generatedToken = crypto.randomBytes(16).toString('hex');
+        const generatedToken = ForgotPasswordToken.generateToken();
         const forgotPasswordToken = new ForgotPasswordToken({ user, token: generatedToken });
 
         forgotPasswordToken.save()

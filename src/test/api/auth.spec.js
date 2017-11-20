@@ -20,24 +20,25 @@ describe('/api/auth/register', () => {
         email,
         password: 'P@ssw0rd'
       })
-      .then((response) => {
+      .then(response => {
         expect(response.statusCode).toBe(200);
         expect(response.body.data.user.email).toBe(email);
       });
   });
 
   test('It should not allow duplicate email addresses.', () => {
-    return new UserFixture().save().then(user => {
-      return request(app).post('/api/auth/register')
-        .send({
-          email: user.email,
-          password: 'P@ssw0rd'
-        })
-        .then((response) => {
-          expect(response.statusCode).toBe(409);
-          expect(response.body.error.errors[0].field[0]).toBe('email');
-        });
-    });
+    return new UserFixture().save()
+      .then(user => {
+        return request(app).post('/api/auth/register')
+          .send({
+            email: user.email,
+            password: 'P@ssw0rd'
+          });
+      })
+      .then(response => {
+        expect(response.statusCode).toBe(409);
+        expect(response.body.error.errors[0].field[0]).toBe('email');
+      });
   });
 
   test('It should not allow passwords < 6 characters.', () => {
@@ -46,7 +47,7 @@ describe('/api/auth/register', () => {
         email: 'test@test.com',
         password: '12345'
       })
-      .then((response) => {
+      .then(response => {
         expect(response.statusCode).toBe(400);
         expect(response.body.error.errors[0].field[0]).toBe('password');
       });
@@ -58,7 +59,7 @@ describe('/api/auth/register', () => {
         email: 'test',
         password: 'P@ssw0rd'
       })
-      .then((response) => {
+      .then(response => {
         expect(response.statusCode).toBe(400);
         expect(response.body.error.errors[0].field[0]).toBe('email');
       });
@@ -70,7 +71,7 @@ describe('/api/auth/register', () => {
         email: '',
         password: 'P@ssw0rd'
       })
-      .then((response) => {
+      .then(response => {
         expect(response.statusCode).toBe(400);
         expect(response.body.error.errors[0].field[0]).toBe('email');
       });
@@ -89,7 +90,7 @@ describe('/api/auth/login', () => {
             password
           });
       })
-      .then((response) => {
+      .then(response => {
         expect(response.statusCode).toBe(200);
         expect(response.body.data).toHaveProperty('token');
       });
@@ -101,7 +102,7 @@ describe('/api/auth/login', () => {
         email: 'test@test.com',
         password: 'P@ssw0rd'
       })
-      .then((response) => {
+      .then(response => {
         expect(response.statusCode).toBe(401);
       });
   });
@@ -114,7 +115,7 @@ describe('/api/auth/login', () => {
             email: user.email,
             password: 'wrongpassword'
           })
-          .then((response) => {
+          .then(response => {
             expect(response.statusCode).toBe(401);
           });
       });
@@ -133,7 +134,7 @@ describe('/api/auth/activate', () => {
         return request(app).post('/api/auth/activate')
           .send({ token });
       })
-      .then((response) => {
+      .then(response => {
         expect(response.statusCode).toBe(200);
       });
   });
@@ -147,7 +148,7 @@ describe('/api/auth/activate', () => {
         return request(app).post('/api/auth/activate')
           .send({ token: 'invalid' });
       })
-      .then((response) => {
+      .then(response => {
         expect(response.statusCode).toBe(400);
         expect(response.body.error.errors[0].field[0]).toBe('token');
       });
@@ -162,7 +163,7 @@ describe('/api/auth/activate', () => {
         return request(app).post('/api/auth/activate')
           .send({ token });
       })
-      .then((response) => {
+      .then(response => {
         expect(response.statusCode).toBe(200);
 
         return request(app).post('/api/auth/activate')
@@ -182,7 +183,7 @@ describe('/api/auth/forgot-password', () => {
         return request(app).post('/api/auth/forgot-password')
           .send({ email: user.email });
       })
-      .then((response) => {
+      .then(response => {
         expect(response.statusCode).toBe(200);
       });
   });
@@ -190,7 +191,7 @@ describe('/api/auth/forgot-password', () => {
   test('It should return success when using an invalid email.', () => {
     return request(app).post('/api/auth/forgot-password')
       .send({ email: 'doesnotexist@email.com' })
-      .then((response) => {
+      .then(response => {
         expect(response.statusCode).toBe(200);
       });
   });
@@ -198,7 +199,7 @@ describe('/api/auth/forgot-password', () => {
   test('It should not return success when no email is provided.', () => {
     return request(app).post('/api/auth/forgot-password')
       .send()
-      .then((response) => {
+      .then(response => {
         expect(response.statusCode).toBe(400);
         expect(response.body.error.errors[0].field[0]).toBe('email');
       });
@@ -224,7 +225,7 @@ describe('/api/auth/reset-password', () => {
             newPassword: 'P@ssw0rd'
           });
       })
-      .then((response) => {
+      .then(response => {
         expect(response.statusCode).toBe(200);
       });
   });
@@ -236,7 +237,7 @@ describe('/api/auth/reset-password', () => {
         token,
         newPassword: 'P@ssw0rd'
       })
-      .then((response) => {
+      .then(response => {
         expect(response.statusCode).toBe(400);
         expect(response.body.error.errors[0].field[0]).toBe('token');
       });
@@ -258,7 +259,7 @@ describe('/api/auth/reset-password', () => {
             newPassword: 'P@ssw0rd'
           });
       })
-      .then((response) => {
+      .then(response => {
         expect(response.statusCode).toBe(400);
         expect(response.body.error.errors[0].field[0]).toBe('token');
       });
@@ -280,7 +281,7 @@ describe('/api/auth/reset-password', () => {
             newPassword: 'pass'
           });
       })
-      .then((response) => {
+      .then(response => {
         expect(response.statusCode).toBe(400);
         expect(response.body.error.errors[0].field[0]).toBe('newPassword');
       });
