@@ -1,8 +1,9 @@
-import { jest } from 'jest';
-
 import VerificationToken from '../../../app/models/verification-token.model';
 
 import VerificationTokenFixture from '../../fixtures/verification-token.fixture';
+import setup from '../../setup';
+
+beforeEach(async () => await setup());
 
 describe('VerificationToken', () => {
   describe('validate', () => {
