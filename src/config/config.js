@@ -9,7 +9,7 @@ const defaultConfig = {
   test: false, // Is test environment?
   jwtSecret: 'secret',
   hashSecret: 'secret',
-  mongodb: 'mongodb://localhost/decisive-lobster',
+  mongodb: '', // MongoDB instance
   email: {
     from: 'John Smith <test@gmail.com>' // Email from address.
   }

@@ -63,7 +63,7 @@ UserSchema.methods.getJwtToken = function () {
   return jwt.sign({ id: this._id, email: this.email }, config.jwtSecret);
 }
 
-UserSchema.statics.checkDuplicateEmail = error => {
+UserSchema.statics.checkDuplicateEmail = function (error) {
   if (error.name === 'MongoError' && error.code === 11000) {
     return new APIError({
       message: 'Validation Error',

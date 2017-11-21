@@ -125,7 +125,7 @@ describe('/api/auth/login', () => {
 describe('/api/auth/activate', () => {
   const token = 'test';
 
-  test('It should activate a user with valid activation code.', () => {
+  test('It should activate a user with a valid activation code.', () => {
     return new UserFixture().save()
       .then(user => {
         return new VerificationTokenFixture({ user, token }).save();

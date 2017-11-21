@@ -53,7 +53,7 @@ ForgotPasswordTokenSchema.statics.getHash = function (token) {
   return crypto.createHmac('sha256', config.hashSecret).update(token).digest('hex');
 };
 
-ForgotPasswordTokenSchema.statics.generateToken = () => {
+ForgotPasswordTokenSchema.statics.generateToken = function () {
   return crypto.randomBytes(16).toString('hex');
 }
 
