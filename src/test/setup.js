@@ -2,31 +2,30 @@ import config from '../config/config';
 import mongoose from '../config/mongoose';
 
 // Connect to MongoDB.
+//
 // FIXME: This is causing a memory leak when running tests on watch mode.
 // Need to figure out how to ensure we only have a single connection for all
 // test suites.
-mongoose.connect(config.mongodb, {
-  useMongoClient: true
-});
+//
+// So, since Jest runs tests in parallel, we need to append the process ID to
+// the database to ensure we don't get test data colliding with other test data.
+mongoose.connect(`${config.mongodb}-${process.pid}`, { useMongoClient: true });
 
 // Wipe out all data in database.
-const clearDatabase = () => {
+const setup = () => {
   return new Promise(resolve => {
-    let cont = 0;
-    let max = Object.keys(mongoose.connection.collections).length;
+    const removePromises = [];
+
     for (const i in mongoose.connection.collections) {
-      mongoose.connection.collections[i].remove(function() {
-        cont++;
-        if(cont >= max) {
-          resolve();
-        }
-      });
+      removePromises.push(mongoose.connection.collections[i].remove());
     }
+
+    Promise.all(removePromises).then(() => resolve());
   });
 }
 
-const setupTest = async () => {
-  await clearDatabase();
+const teardown = () => {
+  mongoose.connection.db.dropDatabase();
 }
 
-export default setupTest
+export default { setup, teardown }

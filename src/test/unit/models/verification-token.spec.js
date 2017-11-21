@@ -3,7 +3,7 @@ import VerificationToken from '../../../app/models/verification-token.model';
 import VerificationTokenFixture from '../../fixtures/verification-token.fixture';
 import setup from '../../setup';
 
-beforeEach(async () => await setup());
+beforeEach(() => setup.setup());
 
 describe('VerificationToken', () => {
   describe('validate', () => {
@@ -41,3 +41,5 @@ describe('VerificationToken', () => {
     });
   });
 });
+
+afterAll(() => setup.teardown());

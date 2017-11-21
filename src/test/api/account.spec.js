@@ -7,7 +7,7 @@ import config from '../../config/config';
 import UserFixture from '../fixtures/user.fixture';
 import setup from '../setup';
 
-beforeEach(async () => await setup());
+beforeEach(() => setup.setup());
 
 describe('/api/account', () => {
   test('It should allow users to change their email address.', () => {
@@ -135,3 +135,5 @@ describe('/api/account/resend-activation-email', () => {
       });
   });
 });
+
+afterAll(() => setup.teardown());

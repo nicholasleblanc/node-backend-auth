@@ -9,7 +9,7 @@ import VerificationTokenFixture from '../fixtures/verification-token.fixture';
 import ForgotPasswordTokenFixture from '../fixtures/forgot-password-token.fixture';
 import setup from '../setup';
 
-beforeEach(async () => await setup());
+beforeEach(() => setup.setup());
 
 describe('/api/auth/register', () => {
   test('It should allow a user to register.', () => {
@@ -190,7 +190,7 @@ describe('/api/auth/forgot-password', () => {
 
   test('It should return success when using an invalid email.', () => {
     return request(app).post('/api/auth/forgot-password')
-      .send({ email: 'doesnotexist@email.com' })
+    .send({ email: 'doesnotexist@email.com' })
       .then(response => {
         expect(response.statusCode).toBe(200);
       });
@@ -287,3 +287,5 @@ describe('/api/auth/reset-password', () => {
       });
   });
 });
+
+afterAll(() => setup.teardown());
