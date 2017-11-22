@@ -16,6 +16,7 @@ const setup = () => {
   return new Promise(resolve => {
     const removePromises = [];
 
+    // Loop through all collections and empty them.
     for (const i in mongoose.connection.collections) {
       removePromises.push(mongoose.connection.collections[i].remove());
     }
@@ -25,6 +26,7 @@ const setup = () => {
 }
 
 const teardown = () => {
+  // Since we're dynamically creating databases we should also delete them after.
   mongoose.connection.db.dropDatabase();
 }
 

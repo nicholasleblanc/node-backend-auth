@@ -9,7 +9,7 @@ import setup from '../setup';
 
 beforeEach(() => setup.setup());
 
-describe('/api/account', () => {
+describe('{patch} /api/account', () => {
   test('It should allow users to change their email address.', () => {
     const newEmail = 'newemail@test.com';
 
@@ -111,7 +111,7 @@ describe('/api/account', () => {
   });
 });
 
-describe('/api/account/resend-activation-email', () => {
+describe('{get} /api/account/resend-activation-email', () => {
   test('It should resend account activation email.', () => {
     return new UserFixture().save()
       .then(user => {

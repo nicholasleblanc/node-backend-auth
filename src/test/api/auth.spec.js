@@ -11,7 +11,7 @@ import setup from '../setup';
 
 beforeEach(() => setup.setup());
 
-describe('/api/auth/register', () => {
+describe('{post} /api/auth/register', () => {
   test('It should allow a user to register.', () => {
     const email = 'test@test.com';
 
@@ -78,7 +78,7 @@ describe('/api/auth/register', () => {
   });
 });
 
-describe('/api/auth/login', () => {
+describe('{post} /api/auth/login', () => {
   test('It should provide a token to a registered user.', () => {
     const password = 'P@ssw0rd';
 
@@ -122,7 +122,7 @@ describe('/api/auth/login', () => {
   });
 });
 
-describe('/api/auth/activate', () => {
+describe('{post} /api/auth/activate', () => {
   const token = 'test';
 
   test('It should activate a user with a valid activation code.', () => {
@@ -176,7 +176,7 @@ describe('/api/auth/activate', () => {
   });
 });
 
-describe('/api/auth/forgot-password', () => {
+describe('{post} /api/auth/forgot-password', () => {
   test('It should return success when using a valid email.', () => {
     return new UserFixture().save()
       .then(user => {
@@ -206,7 +206,7 @@ describe('/api/auth/forgot-password', () => {
   });
 });
 
-describe('/api/auth/reset-password', () => {
+describe('{post} /api/auth/reset-password', () => {
   const token = 'test';
 
   test('It should change a users password when using a valid token.', () => {
