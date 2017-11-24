@@ -195,8 +195,10 @@ const confirmEnableTwoFactor = (req, res, next) => {
 }
 
 const disableTwoFactor = (req, res, next) => {
+  const user = req.user;
+
   // Ensure two factor is enabled.
-  if (!req.user.twoFactor.enabled) {
+  if (!user.twoFactor.enrolled) {
     return next(new APIError({
       message: 'Token provided was incorrect.',
       status: httpStatus.FORBIDDEN,
@@ -207,7 +209,7 @@ const disableTwoFactor = (req, res, next) => {
 
   // Verify the user provided token.
   const verified = speakeasy.totp.verify({ // TODO: Move to user model
-    secret,
+    secret: user.twoFactor.secret,
     encoding: 'base32',
     token
   });

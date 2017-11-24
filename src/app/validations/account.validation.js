@@ -10,13 +10,13 @@ const update = {
 
 const enableTwoFactor = {
   body: {
-    token: joi.number().required().length(6)
+    token: joi.string().required().length(6)
   }
 }
 
 const disableTwoFactor = {
   body: {
-    token: joi.number().required().length(6)
+    token: joi.string().required().length(6)
   }
 }
 
