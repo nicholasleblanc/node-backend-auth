@@ -4,7 +4,7 @@ import httpStatus from 'http-status';
 import jwt from 'jsonwebtoken';
 
 import APIError from '../helpers/APIError';
-import config from '../../config/config';
+import config from '../config/config';
 
 const UserSchema = new mongoose.Schema({
   email: {

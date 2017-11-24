@@ -3,11 +3,11 @@ import crypto from 'crypto';
 import speakeasy from 'speakeasy';
 import qrcode from 'qrcode';
 
-import APIError from '../helpers/APIError';
-import APIResponse from '../helpers/APIResponse';
-import User from '../models/user.model';
-import logger from '../helpers/logger';
-import VerificationToken from '../models/verification-token.model';
+import APIError from '../../helpers/APIError';
+import APIResponse from '../../helpers/APIResponse';
+import User from '../../models/user.model';
+import logger from '../../helpers/logger';
+import VerificationToken from '../../models/verification-token.model';
 
 const update = (req, res, next) => {
   const user = req.user;

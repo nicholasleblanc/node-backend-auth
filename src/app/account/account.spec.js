@@ -4,8 +4,8 @@ import mongoose from 'mongoose';
 import app from '../../config/express';
 import config from '../../config/config';
 
-import UserFixture from '../fixtures/user.fixture';
-import setup from '../setup';
+import UserFixture from '../../test/fixtures/user.fixture';
+import setup from '../../test/setup';
 
 beforeEach(() => setup.setup());
 

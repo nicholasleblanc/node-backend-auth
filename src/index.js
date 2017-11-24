@@ -1,6 +1,6 @@
 import app from './config/express';
 import mongoose from './config/mongoose'
-import logger from './app/helpers/logger'
+import logger from './helpers/logger'
 
 import config from './config/config'
 

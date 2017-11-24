@@ -1,8 +1,8 @@
 import httpStatus from 'http-status';
 import expressValidation from 'express-validation';
-import APIError from '../helpers/APIError';
 
-import config from '../../config/config';
+import APIError from '../helpers/APIError';
+import config from '../config/config';
 
 /**
  * Error handler.

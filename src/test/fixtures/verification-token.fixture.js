@@ -1,4 +1,4 @@
-import VerificationToken from '../../app/models/verification-token.model';
+import VerificationToken from '../../models/verification-token.model';
 
 class VerificationTokenFixture {
   constructor({

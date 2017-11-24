@@ -5,9 +5,9 @@ import mongoose from 'mongoose';
 import APIError from '../helpers/APIError';
 import email from '../helpers/email';
 import logger from '../helpers/logger';
-import config from '../../config/config';
+import config from '../config/config';
 
-const VerificationTokenSchema = new mongoose.Schema({
+const ForgotPasswordTokenSchema = new mongoose.Schema({
   user: {
     type: mongoose.Schema.Types.ObjectId,
     required: true,
@@ -25,22 +25,22 @@ const VerificationTokenSchema = new mongoose.Schema({
   }
 });
 
-VerificationTokenSchema.pre('save', function (next) {
-  const verificationToken = this;
+ForgotPasswordTokenSchema.pre('save', function (next) {
+  const forgotPasswordToken = this;
 
   if (this.isModified('token') || this.isNew) {
-    const hash = VerificationTokenSchema.statics.getHash(verificationToken.token);
+    const hash = ForgotPasswordTokenSchema.statics.getHash(forgotPasswordToken.token);
 
-    verificationToken.token = hash;
+    forgotPasswordToken.token = hash;
     return next();
   } else {
     return next();
   }
 });
 
-VerificationTokenSchema.methods.sendEmail = function (token) {
+ForgotPasswordTokenSchema.methods.sendEmail = function (token) {
   return email.send({
-    template: 'verification-token',
+    template: 'forgot-password',
     message: {
       to: this.user.email
     },
@@ -50,12 +50,12 @@ VerificationTokenSchema.methods.sendEmail = function (token) {
   });
 };
 
-VerificationTokenSchema.statics.getHash = function (token) {
+ForgotPasswordTokenSchema.statics.getHash = function (token) {
   return crypto.createHmac('sha256', config.hashSecret).update(token).digest('hex');
 };
 
-VerificationTokenSchema.statics.generateToken = function () {
+ForgotPasswordTokenSchema.statics.generateToken = function () {
   return crypto.randomBytes(16).toString('hex');
 }
 
-export default mongoose.model('VerificationToken', VerificationTokenSchema);
+export default mongoose.model('ForgotPasswordToken', ForgotPasswordTokenSchema);

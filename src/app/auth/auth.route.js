@@ -1,8 +1,8 @@
 import express from 'express';
 import validate from 'express-validation';
 
-import authController from '../controllers/auth.controller';
-import { register, login, activate, forgotPassword, resetPassword } from '../validations/auth.validation';
+import authController from './auth.controller';
+import { register, login, activate, forgotPassword, resetPassword } from './auth.validation';
 
 const router = express.Router();
 

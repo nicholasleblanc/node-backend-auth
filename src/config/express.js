@@ -3,10 +3,10 @@ import bodyParser from 'body-parser';
 import expressWinston from 'express-winston';
 import passport from 'passport';
 
-import routes from '../app/routes/index.route';
-import error from '../app/middleware/error';
-import APIError from '../app/helpers/APIError';
-import logger from '../app/helpers/logger';
+import routes from '../app/routes';
+import error from '../middleware/error';
+import APIError from '../helpers/APIError';
+import logger from '../helpers/logger';
 import config from './config';
 import strategies from './passport';
 

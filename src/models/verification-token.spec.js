@@ -1,7 +1,7 @@
-import VerificationToken from '../../../app/models/verification-token.model';
+import VerificationToken from './verification-token.model';
 
-import VerificationTokenFixture from '../../fixtures/verification-token.fixture';
-import setup from '../../setup';
+import VerificationTokenFixture from '../test/fixtures/verification-token.fixture';
+import setup from '../test/setup';
 
 beforeEach(() => setup.setup());
 

@@ -1,4 +1,4 @@
-import ForgotPasswordToken from '../../app/models/forgot-password-token.model';
+import ForgotPasswordToken from '../../models/forgot-password-token.model';
 
 class ForgotPasswordTokenFixture {
   constructor({

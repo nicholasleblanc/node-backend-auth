@@ -1,7 +1,7 @@
 import Email from 'email-templates';
 import path from 'path';
 
-import config from '../../config/config';
+import config from '../config/config';
 
 const email = new Email({
   message: {
@@ -14,7 +14,7 @@ const email = new Email({
     options: {
       extension: 'ejs'
     },
-    root: path.resolve('src/app/templates/emails')
+    root: path.resolve('src/templates/emails')
   }
 });
 

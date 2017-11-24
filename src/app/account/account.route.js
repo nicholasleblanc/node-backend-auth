@@ -2,8 +2,8 @@ import express from 'express';
 import validate from 'express-validation';
 import passport from 'passport';
 
-import accountController from '../controllers/account.controller';
-import { update, enableTwoFactor, disableTwoFactor } from '../validations/account.validation';
+import accountController from './account.controller';
+import { update, enableTwoFactor, disableTwoFactor } from './account.validation';
 
 const router = express.Router();
 
