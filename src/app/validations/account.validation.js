@@ -8,4 +8,16 @@ const update = {
   }
 };
 
-export { update };
+const enableTwoFactor = {
+  body: {
+    token: joi.number().required().length(6)
+  }
+}
+
+const disableTwoFactor = {
+  body: {
+    token: joi.number().required().length(6)
+  }
+}
+
+export { update, enableTwoFactor, disableTwoFactor };

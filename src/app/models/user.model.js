@@ -27,6 +27,14 @@ const UserSchema = new mongoose.Schema({
   isVerified: {
     type: Boolean,
     default: false
+  },
+  twoFactor: {
+    enrolled: {
+      type: Boolean,
+      default: false
+    },
+    tempSecret: String,
+    secret: String
   }
 }, {
   timestamps: true
@@ -36,7 +44,7 @@ UserSchema.pre('save', function (next) {
   const user = this;
 
   if (this.isModified('password') || this.isNew) {
-    bcrypt.genSalt(10, (err, salt) => {
+    bcrypt.genSalt(8, (err, salt) => {
       if (err) {
         return next(err);
       }
