@@ -1,10 +1,7 @@
 import crypto from 'crypto';
-import httpStatus from 'http-status';
 import mongoose from 'mongoose';
 
-import APIError from '../helpers/APIError';
 import email from '../helpers/email';
-import logger from '../helpers/logger';
 import config from '../config/config';
 
 const VerificationTokenSchema = new mongoose.Schema({

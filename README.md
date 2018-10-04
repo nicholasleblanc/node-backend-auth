@@ -2,6 +2,8 @@
 
 Not quite sure what we're building here. But it will be rock solid.
 
+Currently, this project provides user authentication, forgot password email, two-factor auth, and a few other aspects of user management.
+
 ## Requirements
 
 - [NodeJS](https://nodejs.org/en/)

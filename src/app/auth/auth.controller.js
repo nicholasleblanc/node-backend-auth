@@ -1,15 +1,12 @@
 import httpStatus from 'http-status';
-import crypto from 'crypto';
 import speakeasy from 'speakeasy';
 
-import config from '../../config/config';
 import User from '../../models/user.model';
 import LoginAttempt from '../../models/login-attempt.model';
 import VerificationToken from '../../models/verification-token.model';
 import ForgotPasswordToken from '../../models/forgot-password-token.model';
 import APIError from '../../helpers/APIError';
 import APIResponse from '../../helpers/APIResponse';
-import email from '../../helpers/email';
 import logger from '../../helpers/logger';
 
 const register = (req, res, next) => {

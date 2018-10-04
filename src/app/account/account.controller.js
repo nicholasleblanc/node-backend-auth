@@ -1,5 +1,4 @@
 import httpStatus from 'http-status';
-import crypto from 'crypto';
 import speakeasy from 'speakeasy';
 import qrcode from 'qrcode';
 
